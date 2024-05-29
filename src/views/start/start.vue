@@ -10,14 +10,16 @@
             </div>
             <label>{{ appVersion }}</label>
 
-            <div class="progress-container">
-                <a-progress type="circle" :percent="aProgressValue" />
-            </div>
-            <label>{{ aProgressTip }}</label>
+            <div v-show="aProgressShow">
+                <div class="progress-container">
+                    <a-progress type="circle" :percent="aProgressValue" />
+                </div>
+                <label>{{ aProgressTip }}</label>
 
-            <a-modal v-model:open="aModalShow" title="系统提示" @ok="downloadUpdate" @cancel="aModalShow = false">
-                {{ aModalContent }}
-            </a-modal>
+                <a-modal v-model:open="aModalShow" title="系统提示" @ok="downloadUpdate" @cancel="aModalShow = false">
+                    {{ aModalContent }}
+                </a-modal>
+            </div>
 
         </a-spin>
     </div>
@@ -35,6 +37,7 @@ const jsonData = ref(''),
     aModalContent = ref(''),
     aProgressValue = ref(0),
     aProgressTip = ref(''),
+    aProgressShow = ref(false),
     aSpinTip = ref('');
 
 const checkUpdate = () => {
@@ -66,13 +69,17 @@ const downloadUpdate = () => {
 
     ipcRenderer.send('download-update-now');
 
-    ipcRenderer.on('download-progress', (event, args) => {
+    aSpinShow.value = true; aSpinTip.value = '正在获取资源...';
 
-        let progress = args.data;
+    ipcRenderer.on('download-progress-now', (event, args) => {
 
-        aProgressValue.value = progress.percent;
+        aSpinShow.value = false;
 
-        aProgressTip.value = `已下载 ${progress.transferred},共计 ${progress.total}`;
+        aProgressShow.value = true;
+
+        aProgressValue.value = args.percent.toFixed(2);
+
+        aProgressTip.value = '已下载 ' + (args.transferred / (1024 * 1024)).toFixed(2) + ' MB' + ',共计 ' + (args.total / (1024 * 1024)).toFixed(2) + ' MB';
     });
 }
 
