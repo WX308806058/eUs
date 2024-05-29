@@ -1,8 +1,10 @@
 {
   "name": "egf",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "background.js",
+  "ttitle": "ghp",
+  "ttext": "4SqsfWdYNi1GE7mQss6nBpTMihKThJ2rhHwz",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
