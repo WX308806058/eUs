@@ -1,10 +1,8 @@
 {
   "name": "egf",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.8",
   "main": "background.js",
-  "ttitle": "ghp",
-  "ttext": "4SqsfWdYNi1GE7mQss6nBpTMihKThJ2rhHwz",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,6 +13,7 @@
     "electron:icons": "electron-icon-builder --input=./public/app.png --output=resources --flatten"
   },
   "dependencies": {
+    "ant-design-vue": "4.x",
     "electron-icon-builder": "^2.0.1",
     "electron-log": "^5.1.4",
     "electron-updater": "^6.1.8",

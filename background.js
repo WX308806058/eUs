@@ -79,6 +79,17 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })
 
+ipcMain.on('app-version', () => {
+    webc.send('app-version', { result: true, message: '版本号获取成功', data: app.getVersion() });
+});
+
+// 接收更新命令
+ipcMain.on('download-update-now', () => {
+    log.info('开始下载');
+    //开始下载
+    autoUpdater.downloadUpdate();
+});
+
 // TODO: 检查更新
 ipcMain.on('check-update', () => {
 
@@ -109,6 +120,7 @@ ipcMain.on('check-update', () => {
     autoUpdater.on('error', (err) => {
         log.info('更新出错');
         console.log('更新出错');
+        webc.send('update-error', { result: false, message: '更新出错', data: err });
     });
 
     // 下载进度
@@ -119,10 +131,15 @@ ipcMain.on('check-update', () => {
         let log_message = progressObj.percent + '% (' + progressObj.transferred + "/" + progressObj.total + ')'
         log.info('下载进度：' + log_message);
 
+        webc.send('download-progress', { result: true, message: '当前下载进度', data: progressObj });
     });
 
     //更新下载完成
     autoUpdater.on('update-downloaded', (info) => {
-        log.info('更新下载完成,开始安装...');
+        log.info('更新下载完成,准备安装...');
+        //开始安装
+        setTimeout(() => {
+            autoUpdater.quitAndInstall();
+        }, 500);
     });
 });

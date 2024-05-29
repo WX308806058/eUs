@@ -1,8 +1,26 @@
 <template>
-    <div class="container">
-        <button @click="checkUpdate()">Check Update</button>
+    <div class="page-container">
+        <a-spin :tip="aSpinTip" :spinning="aSpinShow">
+
+
+            <a-button type="primary" @click="checkUpdate">检查更新</a-button>
+            <div class="textarea-txt">
+                <!-- <textarea v-model="jsonData" rows="5"></textarea> -->
+                <a-textarea v-model:value="jsonData" placeholder="jsonData" :auto-size="{ minRows: 2, maxRows: 10 }" />
+            </div>
+            <label>{{ appVersion }}</label>
+
+            <div class="progress-container">
+                <a-progress type="circle" :percent="aProgressValue" />
+            </div>
+            <label>{{ aProgressTip }}</label>
+
+            <a-modal v-model:open="aModalShow" title="系统提示" @ok="downloadUpdate" @cancel="aModalShow = false">
+                {{ aModalContent }}
+            </a-modal>
+
+        </a-spin>
     </div>
-    <textarea v-model="jsonData" rows="15"></textarea>
 </template>
 
 <script setup>
@@ -10,23 +28,62 @@ import { ref, reactive, onMounted, h } from 'vue';
 
 const { ipcRenderer } = require('electron');
 
-const jsonData = ref('');
+const jsonData = ref(''),
+    appVersion = ref('0.0.0'),
+    aSpinShow = ref(false),
+    aModalShow = ref(false),
+    aModalContent = ref(''),
+    aProgressValue = ref(0),
+    aProgressTip = ref(''),
+    aSpinTip = ref('');
 
 const checkUpdate = () => {
+
+    aSpinShow.value = true; aSpinTip.value = '正在检查更新...';
 
     ipcRenderer.send('check-update');
 
     ipcRenderer.on('update-not-available', (event, args) => {
-        jsonData.value = JSON.stringify(args);
+        jsonData.value = JSON.stringify(args, null, 4);
+        aSpinShow.value = false;
     });
 
     ipcRenderer.on('update-available', (event, args) => {
-        jsonData.value = JSON.stringify(args);
+        jsonData.value = JSON.stringify(args, null, 4);
+        aSpinShow.value = false;
+        setTimeout(() => { aModalShow.value = true; aModalContent.value = `新的版本 ${args.data.version} 已发布,请及时更新！`; }, 100)
+    });
+
+    ipcRenderer.on('update-error', (event, args) => {
+        jsonData.value = JSON.stringify(args, null, 4);
+        aSpinShow.value = false;
+    });
+}
+
+const downloadUpdate = () => {
+
+    aModalShow.value = false;
+
+    ipcRenderer.send('download-update-now');
+
+    ipcRenderer.on('download-progress', (event, args) => {
+
+        let progress = args.data;
+
+        aProgressValue.value = progress.percent;
+
+        aProgressTip.value = `已下载 ${progress.transferred},共计 ${progress.total}`;
     });
 }
 
 // onMounted 在组件挂载完成后执行
-onMounted(() => { })
+onMounted(() => {
+    ipcRenderer.send('app-version');
+
+    ipcRenderer.once('app-version', (event, args) => {
+        appVersion.value = `当前系统版本号: ${args.data}`;
+    });
+})
 </script>
 
 <style>
@@ -36,5 +93,20 @@ onMounted(() => { })
     align-items: center;
     justify-content: center;
     color: black;
+}
+
+.page-container {
+    width: 100%;
+    height: auto;
+}
+
+.textarea-txt {
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+}
+
+.progress-container {
+    margin-top: 20px;
 }
 </style>
