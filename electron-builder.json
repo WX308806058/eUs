@@ -10,7 +10,13 @@
     "extraFiles": [
         "./resources"
     ],
-    
+    "publish": {
+        "provider": "github",
+        "owner": "WX308806058",
+        "repo": "eUs",
+        "token": "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",
+        "releaseType": "release"
+    },
     "nsis": {
         "oneClick": false,
         "allowToChangeInstallationDirectory": true,
