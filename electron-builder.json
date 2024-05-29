@@ -1,0 +1,35 @@
+{
+    "productName": "EGF",
+    "appId": "app.9264946.egf",
+    "copyright": "Copyright © 2023",
+    "compression": "maximum",
+    "asar": true,
+    "directories": {
+        "output": "dist/${version}"
+    },
+    "extraFiles": [
+        "./resources"
+    ],
+    
+    "nsis": {
+        "oneClick": false,
+        "allowToChangeInstallationDirectory": true,
+        "perMachine": true,
+        "deleteAppDataOnUninstall": true,
+        "createDesktopShortcut": true,
+        "createStartMenuShortcut": true,
+        "shortcutName": "EGF"
+    },
+    "win": {
+        "icon": "./resources/icons/icon.ico",
+        "artifactName": "${productName}-v${version}-${platform}-${arch}-setup.${ext}",
+        "target": [
+            {
+                "target": "nsis",
+                "arch": [
+                    "x64"
+                ]
+            }
+        ]
+    }
+}
